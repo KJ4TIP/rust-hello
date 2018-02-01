@@ -17,4 +17,9 @@ fn handle_connection(mut stream: TcpStream) {
     
     stream.read(&mut buffer).expect("Error during stream read");
     println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
+
+    let response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 84\r\n\r\n<head><title>Example test page</title></head><body><h1>You made it here!</h1></body>";
+
+    stream.write(response.as_bytes()).expect("Error during stream write");
+    stream.flush().unwrap();
 }
