@@ -1,3 +1,5 @@
+use std::fs::File;
+use std::vec::Vec;
 use std::io::prelude::*;
 use std::net::TcpListener;
 use std::net::TcpStream;
@@ -18,8 +20,27 @@ fn handle_connection(mut stream: TcpStream) {
     stream.read(&mut buffer).expect("Error during stream read");
     println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
 
-    let response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 97\r\n\r\n<html><head><title>Example test page</title></head><body><h1>You made it here!</h1></body></html>";
+    let response = build_response(
+"<html>
+    <head>
+        <title>Example test page</title>
+    </head>
+    <body>
+        <h1>You made it here!</h1>
+    </body>
+</html>
+");
 
-    stream.write(response.as_bytes()).expect("Error during stream write");
+    stream.write(&response).expect("Error during stream write");
     stream.flush().unwrap();
+}
+
+fn build_response(contents: &str) -> Vec<u8> {
+    let mut response = String::from("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: ");
+
+    response.push_str(&contents.len().to_string());
+    response.push_str("\r\n\r\n");
+    response.push_str(contents);
+    
+    return response.into_bytes();
 }
